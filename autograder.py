@@ -48,7 +48,7 @@ def test_conv_gold_test():
 
     if "Error" in process.stdout or process.returncode != 0:
         print(CRED + "Test failed to compile\n" + CEND)
-        return 0
+        return 0, 0
 
     process = subprocess.run(['make', 'run_c'], 
                         stdout=subprocess.PIPE, 
@@ -59,10 +59,10 @@ def test_conv_gold_test():
 
     if "Error! Output does not match gold" in process.stdout:
         print(CRED + "Test failed\n" + CEND)
-        return 0
+        return 1, 0
     else:
         print(CGREEN + "Test passed!\n" + CEND)
-        return 1
+        return 1, 1
 
 def test_conv_gold_tiled_test():
     print("Running conv_gold_tiled_test")
@@ -75,7 +75,7 @@ def test_conv_gold_tiled_test():
 
     if "Error" in process.stdout or process.returncode != 0:
         print(CRED + "Test failed to compile\n" + CEND)
-        return 0
+        return 0, 0
 
     process = subprocess.run(['make', 'run_tiled_c'], 
                         stdout=subprocess.PIPE, 
@@ -86,10 +86,10 @@ def test_conv_gold_tiled_test():
 
     if "Error! Output does not match gold" in process.stdout:
         print(CRED + "Test failed\n" + CEND)
-        return 0
+        return 1, 0
     else:
         print(CGREEN + "Test passed!\n" + CEND)
-        return 1
+        return 1, 1
 
 def test_mac_tb():
     print("Running test_mac_tb")
