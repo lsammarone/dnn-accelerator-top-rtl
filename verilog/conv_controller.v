@@ -83,7 +83,7 @@ module conv_controller
   // Configuration registers
   // ---------------------------------------------------------------------------
   
-  reg [`CONFIG_DATA_WIDTH - 1 : 0] config_r [NUM_CONFIGS - 1 : 0];
+  reg [CONFIG_DATA_WIDTH - 1 : 0] config_r [NUM_CONFIGS - 1 : 0];
   
   wire [COUNTER_WIDTH - 1 : 0] OC1_c;
   wire [COUNTER_WIDTH - 1 : 0] IC1_FY_FX_OY0_OX0_c;

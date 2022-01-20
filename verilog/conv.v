@@ -63,7 +63,8 @@ module conv
   wire [OFMAP_WIDTH - 1 : 0] ofmap_fifo_din;
   wire ofmap_fifo_enq;
   wire ofmap_fifo_full_n;
- 
+  wire ofmap_vld_w；
+  
   wire params_fifo_full_n;
   wire [CONFIG_WIDTH - 1 : 0] params_fifo_dout;
   wire params_fifo_deq;
