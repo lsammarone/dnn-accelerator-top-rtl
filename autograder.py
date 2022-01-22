@@ -97,7 +97,7 @@ def test_mac_tb():
 
 def test_mac_tb_uvm():
     print("Running test_mac_tb_uvm")
-    return 1, run_process(['vcs', '-full64', '-sverilog', '-timescale=1ns/1ps', '-debug_access+pp', 'tests/mac_tb_uvm.v', 'verilog/mac.v'])          
+    return 1, run_process(['vcs', '-full64', '-sverilog', '-timescale=1ns/1ps', '-debug_access+pp', 'cpp/mac_gold.c', 'tests/mac_tb_uvm.v', 'verilog/mac.v'])          
 
 def test_skew_registers_tb():
     print("Running test_skew_registers_tb")
