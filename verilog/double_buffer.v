@@ -28,6 +28,31 @@ module double_buffer
   // the bank you are writing on the clock edge.
 
   // Your code starts here
+  reg active_write_bank_r;
 
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (switch_banks) begin
+        active_write_bank_r <= !active_write_bank_r;
+      end
+    end else begin
+      active_write_bank_r <= 1'b0;
+    end
+  end
+
+  ram_sync_1r1w
+  #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDR_WIDTH(BANK_ADDR_WIDTH + 1),
+    .DEPTH(BANK_DEPTH*2)
+  ) ram (
+    .clk(clk),
+    .wen(wen),
+    .wadr(active_write_bank_r ? wadr + BANK_DEPTH : wadr),
+    .wdata(wdata),
+    .ren(ren),
+    .radr(active_write_bank_r ? radr : radr + BANK_DEPTH),
+    .rdata(rdata)
+  );
   // Your code ends here
 endmodule

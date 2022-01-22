@@ -45,6 +45,52 @@ module accumulation_buffer
   // array and vice versa.
 
   // Your code starts here
+  wire [DATA_WIDTH - 1 : 0] rdata0;
+  wire [DATA_WIDTH - 1 : 0] rdata1;
 
+  reg active_write_bank_r;
+
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (switch_banks) begin
+        active_write_bank_r <= !active_write_bank_r;
+      end
+    end else begin
+      active_write_bank_r <= 1'b0;
+    end
+  end
+
+  ram_sync_1r1w
+  #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDR_WIDTH(BANK_ADDR_WIDTH),
+    .DEPTH(BANK_DEPTH)
+  ) ram0 (
+    .clk(clk),
+    .wen(active_write_bank_r ? 1'b0 : wen),
+    .wadr(wadr),
+    .wdata(wdata),
+    .ren(active_write_bank_r ? ren_wb : ren),
+    .radr(active_write_bank_r ? radr_wb : radr),
+    .rdata(rdata0)
+  );
+  
+  ram_sync_1r1w
+  #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDR_WIDTH(BANK_ADDR_WIDTH),
+    .DEPTH(BANK_DEPTH)
+  ) ram1 (
+    .clk(clk),
+    .wen(active_write_bank_r ? wen : 1'b0),
+    .wadr(wadr),
+    .wdata(wdata),
+    .ren(active_write_bank_r ? ren : ren_wb),
+    .radr(active_write_bank_r ? radr : radr_wb),
+    .rdata(rdata1)
+  );
+
+  assign rdata = active_write_bank_r ? rdata1 : rdata0;
+  assign rdata_wb = active_write_bank_r ? rdata0 : rdata1;
   // Your code ends here
 endmodule

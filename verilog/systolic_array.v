@@ -102,5 +102,40 @@ module systolic_array
 
   // Your code starts here
 
+  wire signed [IFMAP_WIDTH - 1 : 0] ifmap_w [ARRAY_WIDTH : 0][ARRAY_HEIGHT - 1 : 0];
+  wire signed [OFMAP_WIDTH - 1 : 0] ofmap_w [ARRAY_WIDTH - 1 : 0][ARRAY_HEIGHT : 0];
+
+  generate
+    for (x = 0; x < ARRAY_WIDTH; x = x + 1) begin: row
+      for (y = 0; y < ARRAY_HEIGHT; y = y + 1) begin: col
+        if (x == 0) begin
+          assign ifmap_w[x][y] = ifmap_in[y];
+        end else begin
+          
+        end
+        if (y == 0) begin
+          assign ofmap_w[x][y] = ofmap_in[x];
+        end
+        if (y == ARRAY_HEIGHT - 1) begin
+          assign ofmap_out[x] = ofmap_w[x][y + 1];
+        end
+        mac #(
+          .IFMAP_WIDTH(IFMAP_WIDTH),
+          .WEIGHT_WIDTH(WEIGHT_WIDTH),
+          .OFMAP_WIDTH(OFMAP_WIDTH)
+        ) mac_inst (
+          .clk(clk),
+          .rst_n(rst_n),
+          .en(en),
+          .weight_wen(weight_wen_w[x][y]),
+          .ifmap_in(ifmap_w[x][y]),
+          .weight_in(weight_in_skewed[x]),
+          .ofmap_in(ofmap_w[x][y]),
+          .ifmap_out(ifmap_w[x + 1][y]),
+          .ofmap_out(ofmap_w[x][y + 1])
+        );
+      end
+    end
+  endgenerate
   // Your code ends here
 endmodule

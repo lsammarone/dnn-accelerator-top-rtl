@@ -28,6 +28,31 @@ module adr_gen_sequential
   // convolution).
 
   // Your code starts here
+  wire last_adr_w;
 
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (config_en) begin
+        config_block_max <= config_data; 
+      end
+    end else begin
+      config_block_max <= 0;
+    end
+  end
+  
+  reg [BANK_ADDR_WIDTH - 1 : 0] adr_r;
+  
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (adr_en) begin
+        adr_r <= last_adr_w ? 0 : adr_r + 1;
+      end
+    end else begin
+      adr_r <= 0;
+    end
+  end
+
+  assign adr = adr_r;
+  assign last_adr_w = (adr_r == config_block_max);
   // Your code ends here
 endmodule

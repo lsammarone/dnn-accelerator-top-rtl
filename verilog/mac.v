@@ -33,6 +33,42 @@ module mac
   // Synchronously reset all registers when rst_n is low.
 
   // Your code starts here
+  wire signed [OFMAP_WIDTH - 1 : 0] ofmap_w;
+  wire signed [OFMAP_WIDTH - 1 : 0] mult_w;
 
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (weight_wen) begin
+        weight_r <= weight_in;      
+      end
+    end else begin
+        weight_r <= 0;
+    end
+  end
+
+  assign mult_w = ifmap_in * weight_r;
+  assign ofmap_w = ofmap_in + mult_w;
+  assign ofmap_out = ofmap_r;
+  assign ifmap_out = ifmap_r;
+
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (en) begin
+        ifmap_r <= ifmap_in;
+        ofmap_r <= ofmap_w;
+      end
+    end else begin
+      ifmap_r <= 0;
+      ofmap_r <= 0;
+    end
+  end
+  /*
+  always @ (posedge clk) begin
+    if (en) begin
+      $display("%m, ifmap = %h, weight = %h, ofmap_in = %h, ofmap_out = %h", 
+                    ifmap_in,   weight_r,    ofmap_in,      ofmap_w);
+    end
+  end
+  */
   // Your code ends here
 endmodule

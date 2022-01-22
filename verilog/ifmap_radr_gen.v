@@ -36,6 +36,37 @@ module ifmap_radr_gen
   // all registers when rst_n is low.  
   
   // Your code starts here
+ 
+  reg [BANK_ADDR_WIDTH - 1 : 0] ox0, oy0, fx, fy, ic1;
+  wire [BANK_ADDR_WIDTH - 1 : 0] ix0, iy0, adrc;
+  
+  always @ (posedge clk) begin
+    if (rst_n) begin
+      if (adr_en) begin
+        ox0 <=  (ox0 == config_OX0 - 1) ? 
+          0 : ox0 + 1;
+        oy0 <=  (ox0 == config_OX0 - 1) ? 
+          ((oy0 == config_OY0 - 1) ? 0 : oy0 + 1) : oy0;
+        fx  <= ((ox0 == config_OX0 - 1) && (oy0 == config_OY0 - 1)) ? 
+          ((fx == config_FX - 1) ? 0 : fx + 1) : fx;
+        fy  <= ((ox0 == config_OX0 - 1) && (oy0 == config_OY0 - 1) && (fx == config_FX - 1)) ? 
+          ((fy == config_FY - 1) ? 0 : fy + 1) : fy;
+        ic1 <= ((ox0 == config_OX0 - 1) && (oy0 == config_OY0 - 1) && (fx == config_FX - 1) && (fy == config_FY - 1)) ? 
+          ((ic1 == config_IC1 - 1) ? 0 : ic1 + 1) : ic1;
+      end
+    end else begin
+      ox0 <= 0;
+      oy0 <= 0;
+      fx <= 0;
+      fy <= 0;
+      ic1 <= 0;
+    end
+  end
 
+  assign ix0 = config_STRIDE * ox0 + fx;
+  assign iy0 = config_STRIDE * oy0 + fy;
+  assign adrc = ic1 * config_IX0 * config_IY0 + iy0 * config_IX0 + ix0;
+
+  assign adr = adrc[BANK_ADDR_WIDTH - 1 : 0];
   // Your code ends here
 endmodule
