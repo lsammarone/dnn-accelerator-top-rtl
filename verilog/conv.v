@@ -184,6 +184,51 @@ module conv
   // registers.
  
   // Your code starts here
+  double_buffer
+  #( 
+    .DATA_WIDTH(WEIGHT_WIDTH * ARRAY_WIDTH),
+    .BANK_ADDR_WIDTH(WEIGHT_BANK_ADDR_WIDTH),
+    .BANK_DEPTH(WEIGHT_BANK_DEPTH)
+  ) weight_double_buffer_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .switch_banks(weight_switch_banks),
+    .ren(weight_ren),
+    .radr(weight_radr),
+    .rdata(weight_flat),
+    .wen(weight_wen),
+    .wadr(weight_wadr),
+    .wdata(weight_aggregator_dout)
+  );
+
+  adr_gen_sequential
+  #( 
+    .BANK_ADDR_WIDTH(WEIGHT_BANK_ADDR_WIDTH)
+  ) weight_wadr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(weight_wen),
+    .adr(weight_wadr),
+    .config_en(config_en),
+    .config_data(weight_max_adr_c)
+  );
+
+  adr_gen_sequential
+  #( 
+    .BANK_ADDR_WIDTH(WEIGHT_BANK_ADDR_WIDTH)
+  ) weight_radr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(weight_ren),
+    .adr(weight_radr),
+    .config_en(config_en),
+    .config_data(weight_max_adr_c)
+  );
+
+  // *** NOTES from Luke:
+  // *** config_en is global
+  // *** config_data is weight_max_adr_c for both weight_wadr and weight_radr gen instances
+
 
   // Your code ends here
 
