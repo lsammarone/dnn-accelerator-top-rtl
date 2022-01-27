@@ -243,6 +243,49 @@ module conv
   // registers.
  
   // Your code starts here
+  double_buffer
+  #( 
+    .DATA_WIDTH(IFMAP_WIDTH * ARRAY_WIDTH),
+    .BANK_ADDR_WIDTH(IFMAP_BANK_ADDR_WIDTH),
+    .BANK_DEPTH(IFMAP_BANK_DEPTH)
+  ) ifmap_double_buffer_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .switch_banks(ifmap_switch_banks),
+    .ren(ifmap_ren),
+    .radr(ifmap_radr),
+    .rdata(ifmap_flat),
+    .wen(ifmap_wen),
+    .wadr(ifmap_wadr),
+    .wdata(ifmap_aggregator_dout)
+  );
+
+  adr_gen_sequential
+  #( 
+    .BANK_ADDR_WIDTH(IFMAP_BANK_ADDR_WIDTH)
+  ) ifmap_wadr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(ifmap_wen),
+    .adr(ifmap_wadr),
+    .config_en(config_en),
+    .config_data(ifmap_max_wadr_c)
+  );
+
+  ifmap_radr_gen
+  #( 
+    .BANK_ADDR_WIDTH(IFMAP_BANK_ADDR_WIDTH)
+  ) ifmap_radr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(ifmap_ren),
+    .adr(ifmap_radr),
+    .config_en(config_en),
+    .config_data({OX0_c, OY0_c, FX_c, FY_c, STRIDE_c, IX0_c, IY0_c, IC1_c})
+  );
+
+  // *** NOTES FROM LUKE
+  // *** Pretty sure ifmap_radr_gen .config_data needs the loop bounds concatenated
 
   // Your code ends here
   
