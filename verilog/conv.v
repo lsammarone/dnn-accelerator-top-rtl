@@ -245,7 +245,7 @@ module conv
   // Your code starts here
   double_buffer
   #( 
-    .DATA_WIDTH(IFMAP_WIDTH * ARRAY_WIDTH),
+    .DATA_WIDTH(IFMAP_WIDTH * ARRAY_HEIGHT),
     .BANK_ADDR_WIDTH(IFMAP_BANK_ADDR_WIDTH),
     .BANK_DEPTH(IFMAP_BANK_DEPTH)
   ) ifmap_double_buffer_inst (
@@ -336,6 +336,39 @@ module conv
   // code section.
 
   // Your code starts here
+  systolic_array_with_skew
+  #( 
+    .IFMAP_WIDTH(IFMAP_WIDTH),
+    .WEIGHT_WIDTH(WEIGHT_WIDTH),
+    .OFMAP_WIDTH(OFMAP_WIDTH),
+    .ARRAY_HEIGHT(ARRAY_HEIGHT),
+    .ARRAY_WIDTH(ARRAY_WIDTH)
+  ) systolic_array_with_skew_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .en(systolic_array_en),
+    .weight_en(systolic_array_weight_en),
+    .weight_wen(systolic_array_weight_wen),
+    .ifmap_in(ifmap),
+    .weight_in(weight),
+    .ofmap_in(ofmap_from_db_skewed),
+    .ofmap_out(ofmap)
+  );
+
+  skew_registers
+  #(
+    .DATA_WIDTH(OFMAP_WIDTH),
+    .N(ARRAY_WIDTH)
+  ) ofmap_in_skew_registers (
+    .clk(clk),
+    .rst_n(rst_n),
+    .en(ofmap_skew_en),
+    .din(ofmap_from_db),
+    .dout(ofmap_from_db_skewed)
+  );
+
+  // *** NOTES FROM LUKE
+  // *** ofmap_in_skew_registers en --> ofmap_skew_en
 
   // Your code ends here
  
@@ -358,6 +391,61 @@ module conv
   // generate block above. 
 
   // Your code starts here
+  accumulation_buffer
+  #( 
+    .DATA_WIDTH(ARRAY_WIDTH * OFMAP_WIDTH),
+    .BANK_ADDR_WIDTH(OFMAP_BANK_ADDR_WIDTH),
+    .BANK_DEPTH(OFMAP_BANK_DEPTH)
+  ) ofmap_buffer_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .switch_banks(ofmap_switch_banks),
+    .ren(ofmap_ren),
+    .radr(ofmap_radr),
+    .rdata(ofmap_from_db_flat),
+    .wen(ofmap_wen),
+    .wadr(ofmap_wadr),
+    .wdata(ofmap_flat),
+    .ren_wb(ofmap_wb_ren),
+    .radr_wb(ofmap_wb_radr),
+    .rdata_wb(ofmap_wb_data)
+  );
+
+  adr_gen_sequential
+  #( 
+    .BANK_ADDR_WIDTH(OFMAP_BANK_ADDR_WIDTH)
+  ) ofmap_radr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(ofmap_ren),
+    .adr(ofmap_radr),
+    .config_en(config_en),
+    .config_data(ofmap_max_adr_c)
+  );
+
+  adr_gen_sequential
+  #( 
+    .BANK_ADDR_WIDTH(OFMAP_BANK_ADDR_WIDTH)
+  ) ofmap_wadr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(ofmap_wen),
+    .adr(ofmap_wadr),
+    .config_en(config_en),
+    .config_data(ofmap_max_adr_c)
+  );
+
+  adr_gen_sequential
+  #( 
+    .BANK_ADDR_WIDTH(OFMAP_BANK_ADDR_WIDTH)
+  ) ofmap_wb_radr_gen_inst (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adr_en(ofmap_wb_ren),
+    .adr(ofmap_wb_radr),
+    .config_en(config_en),
+    .config_data(ofmap_max_adr_c)
+  );
 
   // Your code ends here
 
